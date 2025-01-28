@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import{Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography,Paper, CircularProgress} from '@mui/material'
 import axios from 'axios'
-import { blue, grey, pink, red } from '@mui/material/colors'
+import toast from 'react-hot-toast';
+import { blue, grey, red } from '@mui/material/colors'
 
 const apiUrl='https://jsonplaceholder.typicode.com/users'; //JSONAPI
 
-
+const intialObject={firstName:'',lastName:'',email:'',department:''}
 // Component
 const ListUsers = () => {
   //usestates
@@ -53,32 +54,38 @@ const ListUsers = () => {
       const response=await axios.post(apiUrl,user);
       const[firstName,...lastNamep]=response.data.name.split(' ')
       setUsers([{...response.data,firstName,lastName:lastNamep.join(' ')}, ...users])
+      toast.success("User successfully added")
     } catch (error) {
       setErrorMessage('Failed to add user..')
     };
+    
   }
                             //PUT Request for update the selected user
   const handleEditUser= async (user)=>{
     try {
       await axios.put(`${apiUrl}/${user.id}`,user);
       setUsers(users.map((u)=>(u.id===user.id ? user:u)));
+      toast.success("User successfully updated")
     } catch (error) {
       setErrorMessage('Failed to upadate user.');
     }
+    
   }
                              // DELETE Request for delete user
   const handleDeleteUser=async(id)=>{
     try {
       await axios.delete(`${apiUrl}/${id}`);
       setUsers(users.filter((user)=>user.id !==id));
+      toast.success("User successfully deleted")
     } catch (error) {
       setErrorMessage('failed to delete user..')
     }
+     
   };
 
   const handleDialogOpen=(mode, user=null)=>{
       setDialogMode(mode);
-      setSelectedUser(user);
+      setSelectedUser(mode==='add'?{...intialObject}:{...user});
       setOpenDialog(true);
   };
 
@@ -91,20 +98,18 @@ const ListUsers = () => {
   const handleFormSubmit=(e)=>{
     e.preventDefault();
     const{id,firstName,lastName,email, department}=selectedUser;
-
-    if(!firstName.trim() || !lastName.trim() || !email.trim() || !department.trim()){
-      alert("All fields are required")
-      return false;
+    
+    if(firstName === "" || lastName ==="" || email ==='' || department === ''){
+      toast.error("All fields are required")
+      return;
     }
     const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if(!pattern.test(email)){
-      alert("Please enter a valid email address!");
-      return false;
+      toast.error("Please enter a valid email address!");
+      return ;
     }
     
-
-    
-    const fullname=`${firstName} ${lastName}`;
+   const fullname=`${firstName} ${lastName}`;
     if(dialogMode==='add'){
       addUser({name:fullname,email, department});
     }
@@ -120,7 +125,7 @@ const ListUsers = () => {
     const{name,value}=e.target
     setSelectedUser({...selectedUser,[name]:value});
 
-
+  console.log(selectedUser)
    
   };
 
@@ -207,7 +212,8 @@ const ListUsers = () => {
 
       {/* Modal */}
 
-      <Dialog open={openDialog} onClose={handleDialogClose} fullWidth component='form' onSubmit={handleFormSubmit}>
+      <Dialog open={openDialog} onClose={handleDialogClose} fullWidth   disableAutoFocus disableEnforceFocus>
+        <form >
         <DialogTitle>{dialogMode==='add' ? 'Add user':'Edit User'}</DialogTitle>
         <DialogContent>
           <TextField margin='dense' label='First name' name='firstName'
@@ -240,9 +246,10 @@ const ListUsers = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button variant='contained' type='submit' >{dialogMode==='add'? 'Add':'Save'}</Button>
+          <Button variant='contained' type='button' onClick={handleFormSubmit} >{dialogMode==='add'? 'Add':'Save'}</Button>
           <Button sx={{backgroundColor:red[900],color:'white'}} onClick={handleDialogClose}>Cancel</Button>
         </DialogActions>
+        </form>
       </Dialog>
 
     </Box>
