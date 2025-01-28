@@ -23,6 +23,7 @@ const ListUsers = () => {
 
   useEffect(()=>{
     fetchUsers();
+    console.log("kdkd")
   },[]);
 
 
@@ -61,10 +62,10 @@ const ListUsers = () => {
     
   }
                             //PUT Request for update the selected user
-  const handleEditUser= async (user)=>{
+  const handleEditUser= async (user,spUser)=>{
     try {
       await axios.put(`${apiUrl}/${user.id}`,user);
-      setUsers(users.map((u)=>(u.id===user.id ? user:u)));
+      setUsers(users.map((u)=>(u.id===user.id ? spUser:u)));
       toast.success("User successfully updated")
     } catch (error) {
       setErrorMessage('Failed to upadate user.');
@@ -114,7 +115,7 @@ const ListUsers = () => {
       addUser({name:fullname,email, department});
     }
     else{
-      handleEditUser({id,name:fullname,email, department})
+      handleEditUser({id,name:fullname,email, department},{id,firstName,lastName,email, department})
     }
     handleDialogClose();
   }
@@ -125,7 +126,7 @@ const ListUsers = () => {
     const{name,value}=e.target
     setSelectedUser({...selectedUser,[name]:value});
 
-  console.log(selectedUser)
+  
    
   };
 
@@ -189,7 +190,7 @@ const ListUsers = () => {
               <TableCell>{user.firstName}</TableCell>
               <TableCell>{user.lastName}</TableCell>
               <TableCell>{user.email}</TableCell>
-              <TableCell>{user.department===undefined?"No such column":null}</TableCell>
+              <TableCell>{user.department===undefined?"No such column":user.department}</TableCell>
               <TableCell>
                 <Button color='primary' onClick={()=>handleDialogOpen('edit',user)}>Edit</Button>
                 <Button color='secondary' onClick={()=>handleDeleteUser(user.id)}>Delete</Button>
