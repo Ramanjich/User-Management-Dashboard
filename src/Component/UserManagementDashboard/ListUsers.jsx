@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react'
-import{Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography,Paper} from '@mui/material'
+import{Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography,Paper, CircularProgress} from '@mui/material'
 import axios from 'axios'
 import { blue, grey, pink, red } from '@mui/material/colors'
 
 const apiUrl='https://jsonplaceholder.typicode.com/users'; //JSONAPI
 
 
-// Components
+// Component
 const ListUsers = () => {
+  //usestates
   const[users,setUsers]=useState([]);
   const [currentPage,setCurrentPage]=useState(1);
   const[openDialog,setOpenDialog]=useState(false);
   const[dialogMode,setDialogMode]=useState("add");
   const [selectedUser,setSelectedUser]=useState(null);
   const[errorMessage,setErrorMessage]=useState('');
+  const[loading,setLoading]=useState(false)
   
 
   const rowsPerPage=5;
@@ -25,6 +27,7 @@ const ListUsers = () => {
 
                                            // GET Request for list of users
   const fetchUsers=async()=>{
+    setLoading(true)
     try {
       const responseUsers=await axios.get(apiUrl);
       const changeFormate=responseUsers.data.map((user)=>{
@@ -36,6 +39,9 @@ const ListUsers = () => {
       setUsers(changeFormate)
     } catch (error) {
       setErrorMessage('Something wrong, please try again!!')
+    }
+    finally{
+      setLoading(false)
     }
      
     };
@@ -155,6 +161,9 @@ const ListUsers = () => {
            {errorMessage}
       </Typography>)}
 
+      {loading ? <Box display='flex' justifyContent='center' mt={2}><CircularProgress/></Box>
+      :
+      (<>
       <Typography variant='h4'  sx={{color:blue[900],marginTop:4}}>List of users</Typography>
       <TableContainer component={Paper}  >
         <Table >
@@ -185,12 +194,18 @@ const ListUsers = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
       <Box display='flex' justifyContent='end' alignItems='center' mt={2} pr={4}>
      <Button variant='contained' disabled={currentPage===1}  onClick={handlePreviousPage}>Previous</Button>
      <Typography ml={1} mr={1} sx={{color:'darkblue',fontSize:'19px',fontWeight:'300'}}>{currentPage}</Typography>
      <Button variant='contained'  disabled={currentPage=== Math.ceil(users.length/rowsPerPage)}  onClick={handleNextPage}>Next</Button>
       </Box>
+      </>)}
+
+      
+
+
+
+      {/* Modal */}
 
       <Dialog open={openDialog} onClose={handleDialogClose} fullWidth component='form' onSubmit={handleFormSubmit}>
         <DialogTitle>{dialogMode==='add' ? 'Add user':'Edit User'}</DialogTitle>
