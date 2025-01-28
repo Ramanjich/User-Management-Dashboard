@@ -1,0 +1,11 @@
+.app-container{
+    height: 100vh;
+    font-family: sans-serif;
+    width: 100vw;
+    background-color: #ffffff;
+}
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
