@@ -16,7 +16,7 @@ const ListUsers = () => {
   const[dialogMode,setDialogMode]=useState("add");
   const [selectedUser,setSelectedUser]=useState(null);
   const[errorMessage,setErrorMessage]=useState('');
-  const[loading,setLoading]=useState(false)
+  const[loading,setLoading]=useState(true)
   
 
   const rowsPerPage=5;
